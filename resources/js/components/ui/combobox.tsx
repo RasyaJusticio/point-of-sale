@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
+import Fuse from 'fuse.js';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from './button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
@@ -29,6 +30,10 @@ export default function Combobox({
 }: ComboboxProps) {
     const [open, setOpen] = useState(false);
     const [internalValue, setInternalValue] = useState<string | number>('');
+    const fuse = new Fuse(options, {
+        includeScore: true,
+        keys: ['label'],
+    });
 
     const isControlled = value !== undefined;
 
@@ -39,9 +44,15 @@ export default function Combobox({
         if (!isControlled) setInternalValue(newValue);
     };
 
-    useEffect(() => {
-        console.log(currentValue);
-    }, [currentValue]);
+    const handleSearch = (value: string, search: string) => {
+        if (search === '') return 1;
+
+        const results = fuse.search(search);
+
+        const matchedItem = results.find((result) => result.item.value == value && result.score && result.score < 0.3);
+
+        return matchedItem ? 1 : 0;
+    };
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -52,7 +63,7 @@ export default function Combobox({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-                <Command>
+                <Command filter={handleSearch}>
                     <CommandInput placeholder={searchPlaceholder} />
                     <CommandList>
                         <CommandEmpty>{searchNoResults}</CommandEmpty>
