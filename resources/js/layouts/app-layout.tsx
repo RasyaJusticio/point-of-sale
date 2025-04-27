@@ -11,7 +11,7 @@ interface AppLayoutProps {
 }
 
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
-    const pageProps = usePage().props; // Inertia automatically includes the flash data here
+    const pageProps = usePage().props;
 
     useEffect(() => {
         if (pageProps.flash) {
