@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Category\CategoryStoreRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,15 +37,19 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('crud/categories/create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CategoryStoreRequest $request)
     {
-        //
+        $fields = $request->validated();
+
+        Category::create($fields);
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil dibuat');
     }
 
     /**
