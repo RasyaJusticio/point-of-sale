@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['auth'], 'controller' => CategoryController::class], function () {
@@ -11,4 +12,17 @@ Route::group(['middleware' => ['auth'], 'controller' => CategoryController::clas
     Route::get('/categories/{category}/edit', 'edit')->name('categories.edit');
     Route::put('/categories/{category}', 'update')->name('categories.update');
     Route::delete('/categories/{category}', 'destroy')->name('categories.destroy');
+});
+
+Route::group(['middleware' => ['auth'], 'prefix' => 'items', 'controller' => ItemController::class], function () {
+    Route::get('', 'index')->name('items.index');
+    Route::get('create', 'create')->name('items.create');
+    Route::post('', 'store')->name('items.store');
+
+    Route::group(['prefix' => '{item}'], function () {
+        Route::get('', 'show')->name('items.show');
+        Route::get('edit', 'edit')->name('items.edit');
+        Route::put('', 'update')->name('items.update');
+        Route::delete('', 'destroy')->name('items.destroy');
+    });
 });
