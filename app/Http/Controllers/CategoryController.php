@@ -23,7 +23,7 @@ class CategoryController extends Controller
 
         $categoriesQuery->orderBy('id', 'asc');
 
-        $categories = $categoriesQuery->paginate(10)->withQueryString();
+        $categories = $categoriesQuery->paginate(6)->withQueryString();
 
         return Inertia::render('crud/categories/index', [
             'categories' => $categories,
@@ -86,6 +86,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $category->delete();
+
+        return redirect()->back()->with('success', 'Kategori berhasil dihapus');
     }
 }

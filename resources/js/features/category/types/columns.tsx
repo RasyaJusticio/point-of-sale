@@ -14,7 +14,7 @@ export const categoriesColumns: ColumnDef<Category>[] = [
     {
         header: 'Aksi',
         cell: ({ row }) => {
-            return <ActionCell editRoute={route('categories.edit', row.original.id)} />;
+            return <ActionCell editRoute={route('categories.edit', row.original.id)} deleteRoute={route('categories.destroy', row.original.id)} />;
         },
     },
 ];
