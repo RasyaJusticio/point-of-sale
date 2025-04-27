@@ -65,7 +65,7 @@ export function DataTable<TData, TValue>({ label, columns, data, onSearchRoute, 
                         <input
                             type="text"
                             className="flex-1 bg-transparent outline-none"
-                            placeholder="Cari kategori..."
+                            placeholder={`Cari ${label}...`}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
