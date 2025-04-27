@@ -4,12 +4,14 @@ import Combobox from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Category } from '@/features/category/types/category';
+import ImageUpload from '@/features/item/components/ImageUpload';
 import { Item, ItemForm } from '@/features/item/types/item';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { base64StringToBlob } from 'blob-util';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,18 +24,47 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function ProductCreate({ item, categories }: { item: Item; categories: Category[] }) {
-    const { data, setData, put, processing, errors, reset } = useForm<ItemForm>({
+export default function ProductEdit({
+    item,
+    categories,
+    imageBlob,
+    imageMime,
+}: {
+    item: Item;
+    categories: Category[];
+    imageBlob: string | null;
+    imageMime: string | null;
+}) {
+    const [isImageModified, setIsImageModified] = useState(false);
+    const { data, setData, post, processing, errors } = useForm<ItemForm>({
         name: item.name,
         price: item.price,
         stock: item.stock,
         category_id: item.category_id,
+        image: [],
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route('items.update', item.id));
+
+        const payload = { ...data };
+
+        if (!isImageModified) {
+            delete payload.image;
+        }
+
+        router.post(route('items.update', item.id), payload);
     };
+
+    useEffect(() => {
+        if (imageBlob && imageMime) {
+            const blob = base64StringToBlob(imageBlob, imageMime);
+            const file = new File([blob], 'item-image', { type: imageMime });
+
+            setData('image', [file]);
+            setIsImageModified(false);
+        }
+    }, [imageBlob, imageMime]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -97,6 +128,18 @@ export default function ProductCreate({ item, categories }: { item: Item; catego
                                 onChange={(e) => setData('stock', parseInt(e.target.value))}
                             />
                             <InputError message={errors.stock} />
+                        </div>
+
+                        <div className="grid w-full max-w-full gap-2">
+                            <Label htmlFor="image">Gambar</Label>
+                            <ImageUpload
+                                value={data.image}
+                                onChange={(files) => {
+                                    setData('image', files);
+                                    setIsImageModified(true);
+                                }}
+                            />
+                            <InputError message={errors.image} />
                         </div>
 
                         <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>

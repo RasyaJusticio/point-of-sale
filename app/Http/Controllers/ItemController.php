@@ -55,7 +55,6 @@ class ItemController extends Controller
         $fields = $request->validated();
 
         try {
-
             if ($request->has('image')) {
                 $images = $request->file('image');
 
@@ -92,9 +91,21 @@ class ItemController extends Controller
     {
         $categories = Category::all();
 
+        $imageBlob = null;
+        $imageMime = null;
+
+        if (!empty($item->image_path) && Storage::disk('public')->exists($item->image_path)) {
+            $imageUrl = Storage::disk('public')->path($item->image_path);
+            $imageMime = mime_content_type($imageUrl);
+
+            $imageBlob = base64_encode(file_get_contents($imageUrl));
+        }
+
         return Inertia::render('crud/items/edit', [
             'item' => $item,
             'categories' => $categories,
+            'imageBlob' => $imageBlob,
+            'imageMime' => $imageMime
         ]);
     }
 
@@ -104,6 +115,25 @@ class ItemController extends Controller
     public function update(ItemUpdateRequest $request, Item $item)
     {
         $fields = $request->validated();
+
+        if ($request->has('image')) {
+            $images = $request->file('image');
+
+            if (!empty($images)) {
+                if (!empty($item->image_path)) {
+                    if (Storage::disk('public')->exists($item->image_path)) {
+                        Storage::disk('public')->delete($item->image_path);
+                    }
+                }
+
+                $image = $images[0];
+
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+                $imagePath = Storage::disk('public')->putFileAs('images', $image, $imageName);
+                $fields['image_path'] = $imagePath;
+            }
+        }
 
         $item->update($fields);
 

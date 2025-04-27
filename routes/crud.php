@@ -22,7 +22,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'items', 'controller' => Ite
     Route::group(['prefix' => '{item}'], function () {
         Route::get('', 'show')->name('items.show');
         Route::get('edit', 'edit')->name('items.edit');
-        Route::put('', 'update')->name('items.update');
+        Route::post('', 'update')->name('items.update');
         Route::delete('', 'destroy')->name('items.destroy');
     });
 });
