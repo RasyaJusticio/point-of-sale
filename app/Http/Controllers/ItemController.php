@@ -145,6 +145,12 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        if (!empty($item->image_path)) {
+            if (Storage::disk('public')->exists($item->image_path)) {
+                Storage::disk('public')->delete($item->image_path);
+            }
+        }
+
         $item->delete();
 
         return redirect()->route('items.index')->with('success', 'Produk berhasil dihapus.');
