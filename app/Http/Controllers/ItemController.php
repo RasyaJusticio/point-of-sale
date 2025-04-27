@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Item\ItemStoreRequest;
+use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,15 +38,23 @@ class ItemController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+
+        return Inertia::render('crud/items/create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ItemStoreRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        Item::create($validated);
+
+        return redirect()->route('items.index')->with('success', 'Produk berhasil dibuat.');
     }
 
     /**
