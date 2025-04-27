@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Box, LayoutGrid, Tag } from 'lucide-react';
+import { Box, LayoutGrid, ShoppingCart, Tag } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const systemNavItems: NavItem[] = [
@@ -11,6 +11,11 @@ const systemNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Keranjang',
+        href: '/cart',
+        icon: ShoppingCart,
     },
 ];
 
