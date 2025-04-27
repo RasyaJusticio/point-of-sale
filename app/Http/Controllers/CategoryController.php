@@ -11,9 +11,24 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('crud/categories/index');
+        $categoriesQuery = Category::query();
+
+        $categoriesQuery->when($request->query('search'), function ($query, $search) {
+            $query->where('name', 'like', "%{$search}%");
+        });
+
+        $categoriesQuery->orderBy('id', 'asc');
+
+        $categories = $categoriesQuery->paginate(10)->withQueryString();
+
+        return Inertia::render('crud/categories/index', [
+            'categories' => $categories,
+            'filters' => [
+                'search' => $request->query('search', ''),
+            ],
+        ]);
     }
 
     /**
