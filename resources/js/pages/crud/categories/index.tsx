@@ -23,7 +23,13 @@ export default function Categories({ categories, filters }: { categories: Pagina
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Master Kategori" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <DataTable columns={categoriesColumns} data={categories} onSearchRoute={route('categories.index')} filters={filters} />
+                <DataTable
+                    columns={categoriesColumns}
+                    data={categories}
+                    onStoreRoute={route('categories.create')}
+                    onSearchRoute={route('categories.index')}
+                    filters={filters}
+                />
             </div>
         </AppLayout>
     );
