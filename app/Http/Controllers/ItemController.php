@@ -15,7 +15,7 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $itemsQuery = Item::query();
+        $itemsQuery = Item::query()->with('category');
 
         $itemsQuery->when($request->query('search'), function ($query, $search) {
             $query->where('name', 'like', "%{$search}%");
