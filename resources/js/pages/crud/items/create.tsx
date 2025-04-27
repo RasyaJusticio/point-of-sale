@@ -4,6 +4,7 @@ import Combobox from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Category } from '@/features/category/types/category';
+import ImageUpload from '@/features/item/components/ImageUpload';
 import { ItemForm } from '@/features/item/types/item';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -28,6 +29,7 @@ export default function ProductCreate({ categories }: { categories: Category[] }
         price: 5000,
         stock: 1,
         category_id: 1,
+        image: [],
     });
 
     const submit: FormEventHandler = (e) => {
@@ -97,6 +99,12 @@ export default function ProductCreate({ categories }: { categories: Category[] }
                                 onChange={(e) => setData('stock', parseInt(e.target.value))}
                             />
                             <InputError message={errors.stock} />
+                        </div>
+
+                        <div className="grid w-full max-w-full gap-2">
+                            <Label htmlFor="image">Gambar</Label>
+                            <ImageUpload value={data.image} onChange={(files) => setData('image', files)} />
+                            <InputError message={errors.image} />
                         </div>
 
                         <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>

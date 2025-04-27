@@ -7,6 +7,7 @@ use App\Http\Requests\Item\ItemUpdateRequest;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -53,9 +54,27 @@ class ItemController extends Controller
     {
         $fields = $request->validated();
 
-        Item::create($fields);
+        try {
 
-        return redirect()->route('items.index')->with('success', 'Produk berhasil dibuat.');
+            if ($request->has('image')) {
+                $images = $request->file('image');
+
+                if ($images && count($images) > 0) {
+                    $image = $images[0];
+
+                    $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+                    $imagePath = Storage::disk('public')->putFileAs('images', $image, $imageName);
+                    $fields['image_path'] = $imagePath;
+                }
+            }
+
+            Item::create($fields);
+
+            return redirect()->route('items.index')->with('success', 'Produk berhasil dibuat.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['image' => 'Gagal mengunggah gambar, coba lagi nanti.']);
+        }
     }
 
     /**
