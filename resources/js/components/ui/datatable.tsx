@@ -36,7 +36,7 @@ export function DataTable<TData, TValue>({ columns, data, onSearchRoute, onStore
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(
-            onSearchRoute + `?page=${data.current_page}`,
+            onSearchRoute + '?page=1',
             {
                 search,
             },

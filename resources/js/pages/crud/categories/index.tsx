@@ -5,7 +5,6 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { PaginationData } from '@/types/pagination';
 import { Head } from '@inertiajs/react';
-import { useEffect } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,10 +14,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Categories({ categories, filters }: { categories: PaginationData<Category>; filters: FiltersData }) {
-    useEffect(() => {
-        console.log(categories);
-    }, []);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Master Kategori" />
