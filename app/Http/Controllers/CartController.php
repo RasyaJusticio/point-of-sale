@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,6 +15,7 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $categoryId = $request->query('category', '1');
+        $searchQuery = $request->query('search', '');
 
         $invalidCategoryId = false;
 
@@ -34,22 +36,33 @@ class CartController extends Controller
             })
             ->orderBy('id', 'asc')
             ->get()
-            ->map(function($category) {
+            ->map(function ($category) {
                 $category['items_count'] = $category->items()->count();
 
-                return $category; 
+                return $category;
             });
 
-        if ($invalidCategoryId && Category::count() > 0) {
-            return Inertia::render('shopping-cart', [
+        $itemsQuery = Item::query();
+
+        $itemsQuery->when($searchQuery, function ($query, $search) {
+            $query->where('name', 'like', "%{$search}%");
+        });
+
+        $items = $itemsQuery->get();
+
+        $props = [
+            'items' => $items,
             'categories' => $categories,
-            'category' => $category
-            ])->with('error', 'Kategori tidak valid, menggunakan kategori nomor 1.');
+            'category' => $category,
+            'filters' => [
+                'search' => $searchQuery,
+            ],
+        ];
+
+        if ($invalidCategoryId && Category::count() > 0) {
+            return Inertia::render('shopping-cart', $props)->with('error', 'Kategori tidak valid, menggunakan kategori nomor 1.');
         } else {
-            return Inertia::render('shopping-cart', [
-                'categories' => $categories,
-                'category' => $category
-            ]);
+            return Inertia::render('shopping-cart', $props);
         }
     }
 
