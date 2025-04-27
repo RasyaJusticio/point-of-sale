@@ -8,7 +8,7 @@ import ImageUpload from '@/features/item/components/ImageUpload';
 import { Item, ItemForm } from '@/features/item/types/item';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { base64StringToBlob } from 'blob-util';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
@@ -71,7 +71,7 @@ export default function ProductEdit({
             <Head title="Ubah Produk" />
 
             <div className="flex h-full flex-col gap-4 p-4">
-                <form className="flex flex-col gap-6 rounded-lg bg-white p-4 shadow-lg" onSubmit={submit}>
+                <form className="flex flex-col gap-6 rounded-lg border bg-white p-4" onSubmit={submit}>
                     <h1 className="text-xl font-bold">Ubah Produk</h1>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -142,10 +142,15 @@ export default function ProductEdit({
                             <InputError message={errors.image} />
                         </div>
 
-                        <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
-                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Simpan
-                        </Button>
+                        <div className="align-items mt-4 flex w-full gap-2">
+                            <Button type="button" variant={'outline'} className="w-fit px-8" tabIndex={6}>
+                                <Link href={route('items.index')}>Batal</Link>
+                            </Button>
+                            <Button type="submit" className="w-full" tabIndex={5} disabled={processing}>
+                                {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                                Simpan
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </div>

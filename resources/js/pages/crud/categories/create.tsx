@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { CategoryForm } from '@/features/category/types/category';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
@@ -35,7 +35,7 @@ export default function CategoryCreate() {
             <Head title="Buat Kategori" />
 
             <div className="flex h-full flex-col gap-4 p-4">
-                <form className="flex flex-col gap-6 rounded-lg bg-white p-4 shadow-lg" onSubmit={submit}>
+                <form className="flex flex-col gap-6 rounded-lg border bg-white p-4" onSubmit={submit}>
                     <h1 className="text-xl font-bold">Buat Kategori</h1>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -52,10 +52,15 @@ export default function CategoryCreate() {
                             <InputError message={errors.name} />
                         </div>
 
-                        <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
-                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Simpan
-                        </Button>
+                        <div className="align-items mt-4 flex w-full gap-2">
+                            <Button type="button" variant={'outline'} className="w-fit px-8" tabIndex={6}>
+                                <Link href={route('items.index')}>Batal</Link>
+                            </Button>
+                            <Button type="submit" className="w-full" tabIndex={4} disabled={processing}>
+                                {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                                Simpan
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </div>
