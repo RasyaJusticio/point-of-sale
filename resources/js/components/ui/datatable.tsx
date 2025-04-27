@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Button } from './button';
 
 interface DataTableProps<TData, TValue> {
+    label: string;
     columns: ColumnDef<TData, TValue>[];
     data: PaginationData<TData>;
     filters: FiltersData;
@@ -24,7 +25,7 @@ export type FiltersData = {
     };
 };
 
-export function DataTable<TData, TValue>({ columns, data, onSearchRoute, onStoreRoute, filters }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ label, columns, data, onSearchRoute, onStoreRoute, filters }: DataTableProps<TData, TValue>) {
     const [search, setSearch] = useState(filters.search || '');
 
     const table = useReactTable({
@@ -78,7 +79,7 @@ export function DataTable<TData, TValue>({ columns, data, onSearchRoute, onStore
                 </form>
 
                 <Link href={onStoreRoute}>
-                    <Button>Buat Kategori</Button>
+                    <Button>Buat {label}</Button>
                 </Link>
             </div>
 
@@ -109,7 +110,7 @@ export function DataTable<TData, TValue>({ columns, data, onSearchRoute, onStore
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    Tidak ada hasil
                                 </TableCell>
                             </TableRow>
                         )}
