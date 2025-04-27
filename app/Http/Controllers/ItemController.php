@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Item\ItemStoreRequest;
+use App\Http\Requests\Item\ItemUpdateRequest;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -50,9 +51,9 @@ class ItemController extends Controller
      */
     public function store(ItemStoreRequest $request)
     {
-        $validated = $request->validated();
+        $fields = $request->validated();
 
-        Item::create($validated);
+        Item::create($fields);
 
         return redirect()->route('items.index')->with('success', 'Produk berhasil dibuat.');
     }
@@ -70,15 +71,24 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        //
+        $categories = Category::all();
+
+        return Inertia::render('crud/items/edit', [
+            'item' => $item,
+            'categories' => $categories,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Item $item)
+    public function update(ItemUpdateRequest $request, Item $item)
     {
-        //
+        $fields = $request->validated();
+
+        $item->update($fields);
+
+        return redirect()->route('items.index')->with('success', 'Produk berhasil diperbarui.');
     }
 
     /**
