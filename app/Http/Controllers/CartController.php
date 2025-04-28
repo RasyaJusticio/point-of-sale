@@ -44,6 +44,10 @@ class CartController extends Controller
 
         $itemsQuery = Item::query();
 
+        $itemsQuery->when($categoryId, function ($query, $categoryId) {
+            $query->where('category_id', $categoryId);
+        });
+
         $itemsQuery->when($searchQuery, function ($query, $search) {
             $query->where('name', 'like', "%{$search}%");
         });
