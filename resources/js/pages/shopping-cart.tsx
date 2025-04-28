@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Category as BaseCategory } from '@/features/category/types/category';
 import { Item as BaseItem } from '@/features/item/types/item';
@@ -5,7 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Minus, Plus, Search, Trash, X } from 'lucide-react';
+import { CircleDollarSign, Minus, Plus, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,6 +31,16 @@ type Filters = {
 const ShoppingCart = ({ items, categories, category, filters }: { items: Item[]; categories: Category[]; category?: Category; filters: Filters }) => {
     const [inCartItems, setInCartItems] = useState<Item[]>(JSON.parse(localStorage.getItem('inCartData') ?? '[]'));
     const [search, setSearch] = useState(filters.search || '');
+
+    const calculateTotal = () => {
+        let sum = 0;
+
+        inCartItems.forEach((item) => {
+            sum += item.price * item.qty;
+        });
+
+        return sum;
+    };
 
     const setParams = (extraParams?: { [key: string]: string }) => {
         const currentParams = new URLSearchParams(window.location.search);
@@ -90,7 +101,7 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
 
     const handleItemClick = (item: Item) => {
         if (isSelected(item.id)) {
-            storeItemToCart(item, 0)
+            storeItemToCart(item, 0);
         } else {
             storeItemToCart(item, 1);
         }
@@ -184,10 +195,10 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                         ))}
                     </div>
                 </div>
-                <div className="rounded-md bg-white p-4 lg:w-72">
+                <div className="flex flex-col rounded-md bg-white p-4 lg:w-72">
                     <h2 className="mb-3 text-lg font-bold">Keranjang</h2>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex h-full flex-col gap-2 overflow-y-auto">
                         {inCartItems.map((item) => (
                             <div key={item.id} className="flex flex-row gap-2 rounded-md border bg-white p-1 pr-3">
                                 <div className="h-16 w-16 overflow-hidden rounded-md">
@@ -204,7 +215,7 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                                                 storeItemToCart(item, item.qty - 1);
                                             }}
                                             disabled={item.qty === 1}
-                                            className="disabled:cursor-not-allowed cursor-pointer rounded-full border border-orange-500 bg-orange-100 text-orange-500 hover:opacity-70"
+                                            className="cursor-pointer rounded-full border border-orange-500 bg-orange-100 text-orange-500 hover:opacity-70 disabled:cursor-not-allowed"
                                         >
                                             <Minus size={16} />
                                         </button>
@@ -214,7 +225,7 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                                                 storeItemToCart(item, item.qty + 1);
                                             }}
                                             disabled={item.qty >= item.stock}
-                                            className="disabled:cursor-not-allowed cursor-pointer rounded-full border border-orange-600 bg-orange-500 text-white hover:opacity-80"
+                                            className="cursor-pointer rounded-full border border-orange-600 bg-orange-500 text-white hover:opacity-80 disabled:cursor-not-allowed"
                                         >
                                             <Plus size={16} />
                                         </button>
@@ -234,6 +245,18 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    <div className='flex flex-col gap-4'>
+                        <div className='border-t border-dashed'></div>
+                        <div className="flex flex-row justify-between ">
+                            <span className='text-sm '>Total</span>
+                            <span className='text-sm '>Rp {calculateTotal().toLocaleString("id-ID")}</span>
+                        </div>
+                        <Button className="w-full py-4">
+                            <CircleDollarSign />
+                            Bayar
+                        </Button>
                     </div>
                 </div>
             </div>
