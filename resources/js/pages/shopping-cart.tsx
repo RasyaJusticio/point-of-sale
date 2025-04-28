@@ -1,11 +1,11 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Category as BaseCategory } from '@/features/category/types/category';
-import { Item } from '@/features/item/types/item';
+import { Item as BaseItem } from '@/features/item/types/item';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, X } from 'lucide-react';
+import { Minus, Plus, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -19,17 +19,16 @@ type Category = BaseCategory & {
     items_count: number;
 };
 
+type Item = BaseItem & {
+    qty: number;
+};
+
 type Filters = {
     search: string;
 };
 
-type CartData = {
-    id: number;
-    qty: number;
-};
-
 const ShoppingCart = ({ items, categories, category, filters }: { items: Item[]; categories: Category[]; category?: Category; filters: Filters }) => {
-    const [selectedProducts, setSelectedProducts] = useState<CartData[]>(JSON.parse(localStorage.getItem('cartData') || '[]'));
+    const [inCartItems, setInCartItems] = useState<Item[]>(JSON.parse(localStorage.getItem('inCartData') ?? '[]'));
     const [search, setSearch] = useState(filters.search || '');
 
     const setParams = (extraParams?: { [key: string]: string }) => {
@@ -55,46 +54,53 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
     };
 
     const isSelected = (itemId: number) => {
-        return selectedProducts.some((product) => product.id === itemId);
-    }
+        return inCartItems.some((product) => product.id === itemId);
+    };
 
-    const storeItemToCart = (itemId: number, qty: number) => {
-        const cartData: CartData[] = JSON.parse(localStorage.getItem('cartData') ?? '[]');
+    const storeItemToCart = (item: Item, qty: number) => {
+        const cartData: Item[] = JSON.parse(localStorage.getItem('inCartData') ?? '[]');
 
-        const foundData = cartData.find((data) => data.id == itemId);
+        const foundData = cartData.find((data) => data.id === item.id);
 
         if (foundData) {
             if (qty > 0) {
-                cartData.splice(cartData.indexOf(foundData), 1);
-            } else {
                 foundData.qty = qty;
+            } else {
+                const index = cartData.indexOf(foundData);
+                if (index !== -1) {
+                    cartData.splice(index, 1);
+                }
             }
 
-            setSelectedProducts((prev) => {
-                const updatedProducts = prev.map((product) => (product.id === itemId ? { ...product, qty } : product));
-                return qty > 0 ? updatedProducts : updatedProducts.filter((product) => product.id !== itemId);
+            setInCartItems((prev) => {
+                const updatedProducts = prev.map((product) => (product.id === item.id ? { ...product, qty } : product));
+                return qty > 0 ? updatedProducts : updatedProducts.filter((product) => product.id !== item.id);
             });
         } else {
             cartData.push({
-                id: itemId,
+                ...item,
                 qty: 1,
             });
 
-            setSelectedProducts((prev) => [...prev, { id: itemId, qty }]);
+            setInCartItems((prev) => [...prev, { ...item, qty: 1 }]);
         }
 
-        localStorage.setItem('cartData', JSON.stringify(cartData));
+        localStorage.setItem('inCartData', JSON.stringify(cartData));
     };
 
     const handleItemClick = (item: Item) => {
-        storeItemToCart(item.id, 1);
+        if (isSelected(item.id)) {
+            storeItemToCart(item, 0)
+        } else {
+            storeItemToCart(item, 1);
+        }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Keranjang" />
 
-            <div className="flex w-full max-w-full flex-1 flex-row gap-4 bg-stone-100 p-4">
+            <div className="flex w-full max-w-full flex-1 flex-col gap-4 bg-stone-100 p-4 lg:flex-row">
                 <div className="flex w-full max-w-full flex-1 flex-col gap-4 overflow-hidden">
                     {/* Category Picker */}
                     <div className="relative w-full">
@@ -158,12 +164,16 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                     </form>
 
                     {/* Item Grid */}
-                    <div className="grid w-full auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-6">
+                    <div className="grid w-full auto-rows-min gap-4 md:grid-cols-3 lg:grid-cols-5">
                         {items.map((item) => (
-                            <button key={item.id} onClick={() => !isSelected(item.id) && handleItemClick(item)} className={cn(
-                                "flex w-full flex-col cursor-pointer rounded-md bg-white p-2",
-                                isSelected(item.id) ? "bg-orange-100 border-orange-500 border" : ""
-                            )}>
+                            <button
+                                key={item.id}
+                                onClick={() => handleItemClick(item)}
+                                className={cn(
+                                    'flex w-full cursor-pointer flex-col rounded-md bg-white p-2 transition-colors',
+                                    isSelected(item.id) ? 'border border-orange-500 bg-orange-50' : 'border border-transparent',
+                                )}
+                            >
                                 <div className="h-32 w-full overflow-hidden rounded-md">
                                     <img src={`/storage/${item.image_path}`} alt="" className="h-full w-full object-cover" />
                                 </div>
@@ -174,10 +184,57 @@ const ShoppingCart = ({ items, categories, category, filters }: { items: Item[];
                         ))}
                     </div>
                 </div>
-                <div className="rounded-md bg-white p-4">
-                    <h2 className='text-lg font-bold'>Keranjang</h2>
-                    
-                    <div></div>
+                <div className="rounded-md bg-white p-4 lg:w-72">
+                    <h2 className="mb-3 text-lg font-bold">Keranjang</h2>
+
+                    <div className="flex flex-col gap-2">
+                        {inCartItems.map((item) => (
+                            <div key={item.id} className="flex flex-row gap-2 rounded-md border bg-white p-1 pr-3">
+                                <div className="h-16 w-16 overflow-hidden rounded-md">
+                                    <img src={`/storage/${item.image_path}`} alt="" className="h-full w-full object-cover" />
+                                </div>
+
+                                <div className="flex flex-col">
+                                    <p className="text-sm font-semibold">{item.name}</p>
+                                    <p className="text-xs text-neutral-800">Rp {item.price.toLocaleString('id-ID')}</p>
+
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <button
+                                            onClick={() => {
+                                                storeItemToCart(item, item.qty - 1);
+                                            }}
+                                            disabled={item.qty === 1}
+                                            className="disabled:cursor-not-allowed cursor-pointer rounded-full border border-orange-500 bg-orange-100 text-orange-500 hover:opacity-70"
+                                        >
+                                            <Minus size={16} />
+                                        </button>
+                                        <span className="text-sm">{item.qty}</span>
+                                        <button
+                                            onClick={() => {
+                                                storeItemToCart(item, item.qty + 1);
+                                            }}
+                                            disabled={item.qty >= item.stock}
+                                            className="disabled:cursor-not-allowed cursor-pointer rounded-full border border-orange-600 bg-orange-500 text-white hover:opacity-80"
+                                        >
+                                            <Plus size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="ml-auto flex flex-col items-end justify-between pt-1.5">
+                                    <button
+                                        onClick={() => {
+                                            storeItemToCart(item, 0);
+                                        }}
+                                        className="cursor-pointer text-red-700"
+                                    >
+                                        <Trash size={16} />
+                                    </button>
+                                    <p className="text-sm font-semibold">Rp {(item.price * item.qty).toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </AppLayout>
